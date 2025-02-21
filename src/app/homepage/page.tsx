@@ -28,7 +28,7 @@ const HomepageContent = () => {
   }, [urlQuery]);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen text-white">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <header className="mb-8 flex justify-between items-center gap-4">

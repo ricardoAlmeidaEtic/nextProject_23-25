@@ -53,6 +53,22 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, []);
 
   useEffect(() => {
+    const playMedia = async () => {
+      try {
+        if (audioRef.current && videoRef.current) {
+          await audioRef.current.play();
+          await videoRef.current.play();
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        console.error('Autoplay failed:', error);
+      }
+    };
+    
+    playMedia();
+  }, []);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -84,8 +100,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-800/95 rounded-xl p-8 w-full max-w-2xl shadow-xl relative">
+    <div className="fixed inset-0 bg-wine-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-wine-900 rounded-xl p-8 w-full max-w-2xl shadow-xl relative">
         {/* Close Button */}
         <button
           onClick={onClose}
