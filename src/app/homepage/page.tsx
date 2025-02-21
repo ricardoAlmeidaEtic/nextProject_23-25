@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import MusicPlayer from "@/components/MusicPlayer";
 import TrackItem from "@/components/TrackItem";
 import { database } from '@/lib/db';
 
-const Page = () => {
+const HomepageContent = () => {
   const [selectedTrack, setSelectedTrack] = useState<typeof database.tracks[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
@@ -73,5 +73,11 @@ const Page = () => {
     </div>
   );
 };
+
+const Page = () => (
+  <Suspense fallback={<div className="min-h-screen bg-slate-900 text-white p-8">Loading...</div>}>
+    <HomepageContent />
+  </Suspense>
+);
 
 export default Page;
