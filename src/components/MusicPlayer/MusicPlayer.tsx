@@ -151,7 +151,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
   return (
     <div className="fixed inset-0 bg-wine-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-wine-900 rounded-xl p-8 w-full max-w-4xl shadow-xl relative h-[95vh] flex">
+      <div className="bg-wine-900 rounded-xl p-8 w-full max-w-4xl shadow-xl relative h-[100vh] flex">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
