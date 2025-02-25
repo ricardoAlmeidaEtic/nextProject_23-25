@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import TrackItem from "@/components/TrackItem";
+import TrackItem from "@/components/TrackItem/TrackItem";
 import { database } from '@/lib/db';
 
 const Page = () => {

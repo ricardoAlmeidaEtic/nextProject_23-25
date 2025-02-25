@@ -1,7 +1,8 @@
 'use client';
 
 import { Suspense } from 'react';
-import TrackItem, { Track } from '../../components/TrackItem'; // Adjust import path as needed
+import TrackItem from '../../components/TrackItem/TrackItem';
+import { Track } from '../types'; // Adjust import path as needed
 
 interface Profile {
   name: string;

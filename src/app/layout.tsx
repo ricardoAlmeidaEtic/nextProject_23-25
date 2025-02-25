@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Drawer from '../components/Drawer';
+import Drawer from '../components/Drawer/Drawer';
 
 export const metadata: Metadata = {
   title: "Groupie",

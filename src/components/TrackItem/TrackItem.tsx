@@ -1,12 +1,6 @@
 'use client';
 
-export type Track = {
-  id: string;
-  title: string;
-  artist: string;
-  duration: string;
-  image: string;
-};
+import { Track } from '../../app/types'; // Adjust import path as needed
 
 interface TrackItemProps {
   track: Track;
