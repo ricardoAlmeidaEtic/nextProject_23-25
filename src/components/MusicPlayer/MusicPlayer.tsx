@@ -1,7 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Track, Comment } from '../../app/types';
-import ElasticSlider from "./Controls/ElasticSlider";
+import { motion } from 'framer-motion';
+import AudioSlider from "./Controls/AudioSlider";
+import ProgressSlider from './Controls/ProgressSlider'
+
 
 interface MusicPlayerProps {
   track: Track;
@@ -25,7 +28,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [newCommentText, setNewCommentText] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
   const totalVotes = track.likes + track.dislikes;
   const likePercentage = totalVotes > 0 ? (track.likes / totalVotes) * 100 : 0;
   const dislikePercentage = totalVotes > 0 ? (track.dislikes / totalVotes) * 100 : 0;
@@ -96,20 +98,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || !progressBarRef.current) return;
-    
-    const rect = progressBarRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = (x / rect.width);
-    const newTime = percentage * audioRef.current.duration;
-    
-    audioRef.current.currentTime = newTime;
-    if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
-    }
-  };
-
   const updateTime = useCallback(() => {
     if (!audioRef.current) return;
     
@@ -149,61 +137,81 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     });
   };
 
+  const VolumeDownIcon: React.FC = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253m3.5-15.747l4.5 4.5m0-4.5l-4.5 4.5" />
+    </svg>
+  );
+  
+  const VolumeUpIcon: React.FC = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253m3.5-15.747l4.5 4.5m0-4.5l-4.5 4.5" />
+    </svg>
+  );
+
   return (
-    <div className="fixed inset-0 bg-wine-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-wine-900 rounded-xl p-8 w-full max-w-4xl shadow-xl relative h-[100vh] flex">
+    <div className="fixed inset-0 bg-black/75 backdrop-blur-lg flex items-center justify-center p-4">
+      <div className="bg-wine-900 rounded-2xl p-8 w-full max-w-7xl shadow-2xl relative h-[90vh] flex flex-col">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
+          className="absolute top-8 right-8 text-gray-300 hover:text-white transition-transform hover:scale-110 p-2"
           aria-label="Close player"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
         <div className="flex gap-8 flex-1 overflow-hidden">
           {/* Left Column - Media and Controls */}
-          <div className="flex-1">
-            <div className="relative aspect-square mb-6 rounded-lg overflow-hidden">
+          <div className="flex-1 flex flex-col min-w-[65%]">
+            <div className="relative mb-6 rounded-xl overflow-hidden bg-black/25 flex-1">
               <video
                 ref={videoRef}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain transform transition-transform hover:scale-105"
                 loop
                 muted={!isPlaying}
                 playsInline
               >
                 <source src="https://i.gifer.com/5RT9.mp4" type="video/mp4" />
               </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
 
-            <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold mb-2">{track.title}</h2>
-              <p className="text-gray-400">{track.artist}</p>
+            <div className="text-center mb-6 px-4">
+              <h2 className="text-3xl font-bold mb-2 truncate">{track.title}</h2>
+              <p className="text-gray-300 text-lg">{track.artist}</p>
             </div>
 
             {/* Stream Count and Reactions */}
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-gray-400 text-sm">Streams: {track.streamCount}</span>
+            <div className="flex justify-between items-center mb-6 px-4">
+              <span className="text-gray-400 text-sm font-medium">
+                <span className="text-green-400">{track.streamCount}</span> streams
+              </span>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 group">
                   <button 
                     onClick={handleLike}
-                    className="flex items-center gap-1 hover:text-green-500 transition-colors"
+                    className="flex items-center gap-1 hover:text-green-400 transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                     </svg>
-                    <span>{track.likes}</span>
+                    <span className="font-medium">{track.likes}</span>
                   </button>
-                  <span className="text-sm text-gray-400">{Math.round(likePercentage)}%</span>
+                  <div className="h-1 w-12 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-green-400 transition-all duration-500"
+                      style={{ width: `${likePercentage}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 group">
                   <button 
                     onClick={handleDislike}
-                    className="flex items-center gap-1 hover:text-red-500 transition-colors"
+                    className="flex items-center gap-1 hover:text-red-400 transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path 
                         strokeLinecap="round" 
                         strokeLinejoin="round" 
@@ -211,56 +219,62 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                         d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m0 0v9m0-9h2.765a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 13H9M5 14v7a1 1 0 001 1h12"
                       />
                     </svg>
-                    <span>{track.dislikes}</span>
+                    <span className="font-medium">{track.dislikes}</span>
                   </button>
-                  <span className="text-sm text-gray-400">{Math.round(dislikePercentage)}%</span>
+                  <div className="h-1 w-12 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-red-400 transition-all duration-500"
+                      style={{ width: `${dislikePercentage}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="mb-4">
-              <div 
-                ref={progressBarRef}
-                className="w-full bg-gray-700 rounded-full h-1.5 cursor-pointer"
-                onClick={handleProgressClick}
-              >
-                <div
-                  className="bg-green-500 h-1.5 rounded-full transition-all duration-100 relative"
-                  style={{ width: `${progress}%` }}
-                >
-                  <div className="w-3 h-3 bg-green-500 rounded-full absolute -right-1.5 -top-1 shadow-lg" />
-                </div>
-              </div>
-              <div className="flex justify-between text-sm text-gray-400 mt-1">
+            <div className="mb-6 px-4">
+              <ProgressSlider
+                value={progress}
+                onChange={(newProgress) => {
+                  if (!audioRef.current) return;
+                  const newTime = (newProgress / 100) * audioRef.current.duration;
+                  audioRef.current.currentTime = newTime;
+                  if (videoRef.current) {
+                    videoRef.current.currentTime = newTime;
+                  }
+                }}
+                className="h-2"
+              />
+              <div className="flex justify-between text-sm text-gray-300 mt-2 font-medium">
                 <span>{currentTime}</span>
                 <span>{duration}</span>
               </div>
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center justify-center gap-4 mb-6">
               <button
                 onClick={onPrevious}
-                className="text-gray-400 hover:text-white p-2"
+                className="text-gray-300 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all"
                 aria-label="Previous track"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
               <button
                 onClick={handlePlayPause}
-                className="bg-green-500 text-white rounded-full p-4 hover:bg-green-400 transition"
-                aria-label={isPlaying ? "Pause" : "Play"}
+                className="bg-green-400 text-white rounded-full p-5 hover:bg-green-300 transition-all 
+                  shadow-lg hover:shadow-green-400/30 active:scale-95 relative"
               >
+                <div className={`absolute inset-0 rounded-full bg-current animate-ping opacity-0 ${isPlaying ? 'opacity-20' : ''}`} />
                 {isPlaying ? (
-                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M6 4h4v16H6zm8 0h4v16h-4z" />
                   </svg>
                 ) : (
-                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M5 3.868v16.264c0 .869.971 1.407 1.694.928l13.236-8.132a1.08 1.08 0 000-1.856L6.694 3.04C5.971 2.56 5 3 5 3.868z" />
                   </svg>
                 )}
@@ -268,26 +282,33 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
               <button
                 onClick={onNext}
-                className="text-gray-400 hover:text-white p-2"
+                className="text-gray-300 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all"
                 aria-label="Next track"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <ElasticSlider
-              leftIcon={<>...your icon...</>}
-              rightIcon={<>...your icon...</>}
-              startingValue={volume}
-              defaultValue={750}
-              maxValue={1000}
-              isStepped
-              stepSize={10}
-            />
+            <div className="px-4 mb-6">
+              <div className="flex items-center gap-4 text-gray-300">
+                <VolumeDownIcon />
+                <AudioSlider
+                  leftIcon={null}
+                  rightIcon={null}
+                  value={volume}
+                  onChange={(newVolume) => setVolume(newVolume)}
+                  startingValue={0}
+                  maxValue={100}
+                  isStepped
+                  stepSize={1}
+                  className="flex-1 py-2"
+                />
+                <VolumeUpIcon />
+              </div>
+            </div>
 
-            {/* Hidden Audio Element */}
             <audio 
               ref={audioRef} 
               src={track.audioUrl}
@@ -300,39 +321,50 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
           </div>
             
           {/* Right Column - Comments */}
-          <div className="w-50 flex flex-col h-full">
-            <h3 className="text-lg font-bold mb-4">Comments ({track.comments?.length || 0})</h3>
-            <div ref={commentsContainerRef}className="flex-1 overflow-y-auto pr-2 mb-4 space-y-4">
+          <div className="w-96 flex flex-col h-full border-l border-white/10 pl-8">
+            <h3 className="text-xl font-bold mb-4 text-gray-100">Comments ({track.comments?.length || 0})</h3>
+            <div ref={commentsContainerRef} className="flex-1 overflow-y-auto pr-3 mb-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
               {track.comments?.map((comment) => (
-                <div key={comment.id} className="bg-wine-800 p-4 rounded-lg">
+                <motion.div 
+                  key={comment.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-wine-800 p-4 rounded-xl shadow-sm hover:bg-wine-700/50 transition-colors"
+                >
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium text-sm">{comment.author}</span>
+                    <span className="font-medium text-sm text-gray-100">{comment.author}</span>
                     <span className="text-gray-400 text-xs">
-                      {comment.timestamp.toLocaleDateString('en-US', {
+                      {new Date(comment.timestamp).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
                       })}
                     </span>
                   </div>
-                  <p className="text-gray-300 text-sm">{comment.text}</p>
-                </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">{comment.text}</p>
+                </motion.div>
               ))}
               <div ref={commentsEndRef} />
             </div>
-            <form onSubmit={handleCommentSubmit} className="flex gap-2 mt-auto">
+            <form onSubmit={handleCommentSubmit} className="flex gap-2 mt-auto pr-3">
               <input
                 type="text"
                 value={newCommentText}
                 onChange={(e) => setNewCommentText(e.target.value)}
                 placeholder="Write a comment..."
-                className="flex-1 p-2 rounded bg-wine-800 text-white border border-wine-700 focus:outline-none focus:border-green-500"
+                className="flex-1 p-3 rounded-lg bg-wine-800 text-white border border-wine-700 
+                  focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/30 
+                  transition-all placeholder:text-gray-400"
               />
               <button
                 type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                className="bg-green-400 text-white px-5 py-3 rounded-lg hover:bg-green-300 
+                  transition-all active:scale-95 flex items-center gap-2"
               >
-                Post
+                <span>Post</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
               </button>
             </form>
           </div>

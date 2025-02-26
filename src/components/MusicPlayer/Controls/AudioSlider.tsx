@@ -1,11 +1,11 @@
 import {
-    animate,
-    motion,
-    useMotionValue,
-    useMotionValueEvent,
-    useTransform,
-  } from "framer-motion";
-  import { useEffect, useRef, useState } from "react";
+  animate,
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useTransform,
+} from "framer-motion";
+import { useEffect, useRef, useState } from "react";
   
   const MAX_OVERFLOW = 50;
   
@@ -18,6 +18,8 @@ import {
     stepSize = 1,
     leftIcon = <>-</>,
     rightIcon = <>+</>,
+    value,          // Added prop
+    onChange,       // Added prop
   }) {
     return (
       <div className={`flex flex-col items-center justify-center gap-4 w-48 ${className}`}>
@@ -29,6 +31,8 @@ import {
           stepSize={stepSize}
           leftIcon={leftIcon}
           rightIcon={rightIcon}
+          value={value}         // Pass through
+          onChange={onChange}   // Pass through
         />
       </div>
     );
@@ -42,17 +46,30 @@ import {
     stepSize,
     leftIcon,
     rightIcon,
+    value: externalValue,
+    onChange,
   }) {
-    const [value, setValue] = useState(defaultValue);
     const sliderRef = useRef(null);
     const [region, setRegion] = useState("middle");
     const clientX = useMotionValue(0);
     const overflow = useMotionValue(0);
     const scale = useMotionValue(1);
+    const [internalValue, setInternalValue] = useState(defaultValue);
+    const actualValue = typeof externalValue !== 'undefined' ? externalValue : internalValue;
+
+    const handleChange = (newValue) => {
+      if (typeof onChange === 'function') {
+        onChange(newValue);
+      } else {
+        setInternalValue(newValue);
+      }
+    };
   
     useEffect(() => {
-      setValue(defaultValue);
-    }, [defaultValue]);
+      if (typeof externalValue === 'undefined') {
+        setInternalValue(defaultValue);
+      }
+    }, [defaultValue, externalValue]);
   
     useMotionValueEvent(clientX, "change", (latest) => {
       if (sliderRef.current) {
@@ -84,7 +101,7 @@ import {
         }
   
         newValue = Math.min(Math.max(newValue, startingValue), maxValue);
-        setValue(newValue);
+        handleChange(newValue); // Changed here
         clientX.jump(e.clientX);
       }
     };
@@ -101,7 +118,7 @@ import {
     const getRangePercentage = () => {
       const totalRange = maxValue - startingValue;
       if (totalRange === 0) return 0;
-      return ((value - startingValue) / totalRange) * 100;
+      return ((actualValue - startingValue) / totalRange) * 100; // Changed here
     };
   
     return (
@@ -183,7 +200,7 @@ import {
           </motion.div>
         </motion.div>
         <p className="absolute text-gray-400 transform -translate-y-4 text-xs font-medium tracking-wide">
-          {Math.round(value)}
+          {Math.round(actualValue)} {/* Changed here */}
         </p>
       </>
     );
