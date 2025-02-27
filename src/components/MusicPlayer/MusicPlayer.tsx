@@ -4,6 +4,8 @@ import { Track, Comment } from '../../app/types';
 import { motion } from 'framer-motion';
 import AudioSlider from "./Controls/AudioSlider";
 import ProgressSlider from './Controls/ProgressSlider'
+import { AiOutlineLike } from "react-icons/ai";
+import { AiOutlineDislike } from "react-icons/ai";
 
 
 interface MusicPlayerProps {
@@ -194,9 +196,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                     onClick={handleLike}
                     className="flex items-center gap-1 hover:text-green-400 transition-colors"
                   >
-                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                    </svg>
+                    <AiOutlineLike />
                     <span className="font-medium">{track.likes}</span>
                   </button>
                   <div className="h-1 w-12 bg-gray-700 rounded-full overflow-hidden">
@@ -211,14 +211,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                     onClick={handleDislike}
                     className="flex items-center gap-1 hover:text-red-400 transition-colors"
                   >
-                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m0 0v9m0-9h2.765a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 13H9M5 14v7a1 1 0 001 1h12"
-                      />
-                    </svg>
+                    <AiOutlineDislike />
                     <span className="font-medium">{track.dislikes}</span>
                   </button>
                   <div className="h-1 w-12 bg-gray-700 rounded-full overflow-hidden">

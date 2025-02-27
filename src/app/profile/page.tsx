@@ -34,6 +34,11 @@ const ProfilePage = ({ profile }: { profile: Profile }) => {
     artist: playlist.artist,
     duration: playlist.duration,
     image: playlist.image,
+    audioUrl: '', // Default empty string
+    streamCount: 0, // Default 0
+    likes: 0, // Default 0
+    dislikes: 0, // Default 0
+    comments: [], // Default empty array
   }));
 
   const getInitials = (name: string) => {
