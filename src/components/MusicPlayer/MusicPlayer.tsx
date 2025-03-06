@@ -48,6 +48,19 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, [track.comments]);
 
+  useEffect(() => {
+    // Disable background scroll on mobile
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      document.body.style.overflow = 'hidden';
+    }
+  
+    return () => {
+      // Re-enable scrolling when component unmounts
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
   const updateTrackStats = (update: Partial<Track>) => {
     onUpdateTrack({ ...track, ...update });
   };
@@ -152,17 +165,19 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/75 backdrop-blur-lg flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-wine-900 rounded-2xl p-4 sm:p-8 w-full max-w-7xl shadow-2xl relative h-[90vh] max-h-[800px] flex flex-col">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 sm:top-8 sm:right-8 text-gray-300 hover:text-white transition-transform hover:scale-110 p-2"
-          aria-label="Close player"
-        >
-          <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+      {/* Close Button - Now outside the main modal container */}
+      <button
+        onClick={onClose}
+        className="fixed top-4 right-4 sm:top-8 sm:right-8 text-gray-300 hover:text-white transition-transform hover:scale-110 p-2 z-50"
+        aria-label="Close player"
+      >
+        <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
   
+      <div className="bg-wine-900 rounded-2xl p-4 sm:p-8 w-full max-w-7xl shadow-2xl relative h-[90vh] max-h-[800px] flex flex-col">
+        {/* Rest of the modal content remains the same */}
         <div className="flex gap-4 sm:gap-8 flex-1 overflow-auto flex-col md:flex-row">
           {/* Left Column - Media and Controls */}
           <div className="flex-1 flex flex-col min-w-0 md:min-w-[65%]">
