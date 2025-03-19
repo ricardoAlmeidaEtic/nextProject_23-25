@@ -4,8 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import MusicPlayer from "@/components/MusicPlayer/MusicPlayer";
 import TrackItem from "@/components/TrackItem/TrackItem";
-import { database } from '@/lib/db';
 import { Track } from '../types'; // Adjust import path as needed
+import { database } from '@/lib/db';
 
 const HomepageContent = () => {
   const [tracks, setTracks] = useState<Track[]>([]);
