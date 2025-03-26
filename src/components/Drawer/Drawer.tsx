@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 const Drawer = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const { data: session } = useSession(); // Get session data
 
   const handleSearch = () => {
     const query = searchQuery.trim();
     if (!query) return;
-    
+
     const encodedQuery = encodeURIComponent(query);
     router.push(`/homepage?q=${encodedQuery}`);
     setShowSearch(false);
@@ -43,7 +45,7 @@ const Drawer = () => {
             </svg>
             Home
           </Link>
-          
+
           <div className="relative">
             <button 
               onClick={() => setShowSearch(!showSearch)}
@@ -54,7 +56,7 @@ const Drawer = () => {
               </svg>
               Search
             </button>
-            
+
             {showSearch && (
               <div className="mt-2">
                 <input
@@ -77,13 +79,25 @@ const Drawer = () => {
             Your Library
           </Link>
 
-          {/* Added Profile Button */}
           <Link href="/profile" className="flex items-center gap-3 text-wine-200 hover:text-ivory-100 transition">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             Profile
           </Link>
+
+          {/* Logout Button */}
+          {session && (
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-3 text-wine-200 hover:text-ivory-100 transition"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" />
+              </svg>
+              Logout
+            </button>
+          )}
         </nav>
       </div>
     </div>

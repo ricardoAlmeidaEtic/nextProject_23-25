@@ -28,6 +28,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [currentTime, setCurrentTime] = useState("0:00");
   const [duration, setDuration] = useState("0:00");
   const [newCommentText, setNewCommentText] = useState("");
+  const [hasLiked, setHasLiked] = useState(false); // Track if the user has liked
+  const [hasDisliked, setHasDisliked] = useState(false); // Track if the user has disliked
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const totalVotes = track.likes + track.dislikes;
@@ -49,14 +51,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, [track.comments]);
 
   useEffect(() => {
-    // Disable background scroll on mobile
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     if (isMobile) {
       document.body.style.overflow = 'hidden';
     }
   
     return () => {
-      // Re-enable scrolling when component unmounts
       document.body.style.overflow = 'auto';
     };
   }, []);
@@ -65,12 +65,35 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     onUpdateTrack({ ...track, ...update });
   };
 
-  const handleLike = () => {
-    updateTrackStats({ likes: track.likes + 1 });
-  };
+  const toggleReaction = async (type: "like" | "dislike") => {
+    try {
+      const isRemoving = type === "like" ? hasLiked : hasDisliked;
+      const action = isRemoving ? `remove${type.charAt(0).toUpperCase() + type.slice(1)}` : type;
 
-  const handleDislike = () => {
-    updateTrackStats({ dislikes: track.dislikes + 1 });
+      const response = await fetch(`/api/music/${track.id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${action} the track`);
+      }
+
+      const updatedTrack = await response.json();
+      onUpdateTrack(updatedTrack);
+
+      // Update the state
+      if (type === "like") {
+        setHasLiked(!hasLiked);
+        if (hasDisliked) setHasDisliked(false); // Remove dislike if it exists
+      } else {
+        setHasDisliked(!hasDisliked);
+        if (hasLiked) setHasLiked(false); // Remove like if it exists
+      }
+    } catch (error) {
+      console.error(`Error toggling ${type}:`, error);
+    }
   };
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -94,8 +117,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
           await audioRef.current.play();
           await videoRef.current.play();
           setIsPlaying(true);
-          
-          // Use functional update to ensure fresh state
           updateTrackStats({ streamCount: track.streamCount + 1 });
         }
       } catch (error) {
@@ -206,9 +227,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
               </span>
               <div className="flex items-center gap-2 sm:gap-4">
                 <div className="flex items-center gap-2 group">
-                  <button 
-                    className="flex items-center gap-1 hover:text-green-400 transition-colors"
-                    onClick={handleLike}
+                  <button
+                    className={`flex items-center gap-1 ${
+                      hasLiked ? "text-green-400" : "hover:text-green-400"
+                    } transition-colors`}
+                    onClick={() => toggleReaction("like")}
                   >
                     <AiOutlineLike />
                     <span className="font-medium">{track.likes}</span>
@@ -221,9 +244,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2 group">
-                  <button 
-                    className="flex items-center gap-1 hover:text-red-400 transition-colors"
-                    onClick={handleDislike}
+                  <button
+                      className={`flex items-center gap-1 ${
+                        hasDisliked ? "text-red-400" : "hover:text-red-400"
+                      } transition-colors`}
+                      onClick={() => toggleReaction("dislike")}
                   >
                     <AiOutlineDislike />
                     <span className="font-medium">{track.dislikes}</span>
@@ -302,8 +327,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
               <div className="flex items-center gap-4 text-gray-300">
                 <VolumeDownIcon />
                 <AudioSlider
-                  leftIcon={null}
-                  rightIcon={null}
                   value={volume}
                   onChange={(newVolume) => setVolume(newVolume)}
                   startingValue={0}
@@ -329,7 +352,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             
           {/* Right Column - Comments */}
           <CommentsSection
-            comments={track.comments}
+            comments={track.comments || []} // Ensure comments is always an array
             newCommentText={newCommentText}
             onCommentSubmit={handleCommentSubmit}
             onCommentTextChange={setNewCommentText}

@@ -62,18 +62,18 @@ model User {
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
-  // Add relations for Friends and Playlist
-  friendsAsUser    Friends[]  @relation("FriendsUser")
-  friendsAsFriend  Friends[]  @relation("FriendsFriend")
-  playlists        Playlist[]
+  friendsAsUser Friends[]  @relation("FriendsUser")
+  friendsAsFriend Friends[] @relation("FriendsFriend")
+  playlists     Playlist[]
+  comments      Comment[]
 
   @@map("users")
 }
 
 model Friends {
   id        Int    @id @default(autoincrement())
-  userId    String // Changed from Int to String
-  friendId  String // Changed from Int to String
+  userId    String
+  friendId  String
   user      User   @relation("FriendsUser", fields: [userId], references: [id])
   friend    User   @relation("FriendsFriend", fields: [friendId], references: [id])
 }
@@ -81,15 +81,32 @@ model Friends {
 model Playlist {
   id      Int      @id @default(autoincrement())
   name    String
-  userId  String // Changed from Int to String
+  userId  String
   user    User     @relation(fields: [userId], references: [id])
-  musics  Music[]  // Removed invalid @relation
+  musics  Music[]
 }
 
 model Music {
-  id    Int    @id @default(autoincrement())
-  name  String
-  art   String
-  music String
-  playlists Playlist[]
+  id          Int        @id @default(autoincrement())
+  title       String
+  artist      String
+  duration    String
+  image       String
+  audioUrl    String
+  streamCount Int
+  likes       Int
+  dislikes    Int
+  playlists   Playlist[]
+  comments    Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   // The text of the comment
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   // Foreign key to the User model
+  musicId   Int      // Foreign key to the Music model
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  music     Music    @relation(fields: [musicId], references: [id], onDelete: Cascade)
 }

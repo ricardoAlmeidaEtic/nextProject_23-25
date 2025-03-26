@@ -2,29 +2,47 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import MusicPlayer from "@/components/MusicPlayer/MusicPlayer";
 import TrackItem from "@/components/TrackItem/TrackItem";
 import { Track } from '../types'; // Adjust import path as needed
-import { database } from '@/lib/db';
 
 const HomepageContent = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeGreeting, setTimeGreeting] = useState('');
-  const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Redirect to login if not logged in
   useEffect(() => {
-    setTracks(database.getSongs());
+    if (!session) {
+      router.push("/login");
+    }  
+  }, [session, router]);
+
+  // Fetch tracks from Prisma
+  useEffect(() => {
+    const fetchTracks = async () => {
+      try {
+        const response = await fetch('/api/music'); // Call the API route
+        const data = await response.json();
+        console.log('Fetched tracks:', data.tracks);
+        setTracks(data.tracks);
+      } catch (error) {
+        console.error('Error fetching tracks:', error);
+      }
+    };
+
+    fetchTracks();
   }, []);
 
   useEffect(() => {
     const savedTracks = localStorage.getItem('tracks');
     if (savedTracks) {
       setTracks(JSON.parse(savedTracks));
-    } else {
-      setTracks(database.getSongs());
     }
   }, []);
   
@@ -45,8 +63,13 @@ const HomepageContent = () => {
     setTimeGreeting(getTimeGreeting());
   }, []);
   
-  const urlQuery = searchParams.get('q') || '';
-  const filteredTracks = urlQuery ? database.search(urlQuery).filter(t => t.type === 'song') : database.getSongs();
+  const urlQuery = searchParams?.get('q') || '';
+  const filteredTracks = urlQuery
+    ? tracks.filter((track) =>
+        track.title.toLowerCase().includes(urlQuery.toLowerCase()) ||
+        track.artist.toLowerCase().includes(urlQuery.toLowerCase())
+      )
+    : tracks;
 
   const handleSearch = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -61,11 +84,18 @@ const HomepageContent = () => {
   }, [urlQuery]);
 
   const handleUpdateTrack = (updatedTrack: Track) => {
-    // Update both database and local state
-    database.updateTrack(updatedTrack);
-    setTracks(prev => prev.map(t => t.id === updatedTrack.id ? updatedTrack : t));
-    setSelectedTrack(prev => prev?.id === updatedTrack.id ? updatedTrack : prev);
+    // Update local state
+    setTracks((prev) =>
+      prev.map((t) => (t.id === updatedTrack.id ? updatedTrack : t))
+    );
+    setSelectedTrack((prev) =>
+      prev?.id === updatedTrack.id ? updatedTrack : prev
+    );
   };
+
+  if (status === 'loading') {
+    return <div className="min-h-screen bg-slate-900 text-white p-8">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen text-white">
@@ -110,12 +140,11 @@ const HomepageContent = () => {
       {selectedTrack && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-slate-800/95 rounded-xl p-8 w-full max-w-2xl mx-4 shadow-xl">
-          <MusicPlayer
-            track={selectedTrack}
-            onClose={() => setSelectedTrack(null)}
-            onUpdateTrack={handleUpdateTrack}
-            // Add onNext/onPrevious if needed
-          />
+            <MusicPlayer
+              track={selectedTrack}
+              onClose={() => setSelectedTrack(null)}
+              onUpdateTrack={handleUpdateTrack}
+            />
           </div>
         </div>
       )}
@@ -130,5 +159,3 @@ const Page = () => (
 );
 
 export default Page;
-
-

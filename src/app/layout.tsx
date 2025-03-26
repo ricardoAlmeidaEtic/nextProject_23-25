@@ -1,11 +1,8 @@
-import { SessionProvider } from "next-auth/react";
+'use client';
+
 import Drawer from "@/components/Drawer/Drawer"; // Adjust the import path as needed
 import "./globals.css"; // Import global styles
-
-export const metadata = {
-  title: "Groupie",
-  description: "Sophisticated music streaming experience",
-};
+import { SessionProvider } from "next-auth/react";
 
 export default function RootLayout({
   children,

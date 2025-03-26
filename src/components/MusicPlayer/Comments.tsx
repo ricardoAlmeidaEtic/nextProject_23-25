@@ -4,14 +4,14 @@ import { motion } from 'framer-motion';
 import { Comment } from '../../app/types';
 
 interface CommentsSectionProps {
-  comments: Comment[];
+  comments?: Comment[];
   newCommentText: string;
   onCommentSubmit: (e: React.FormEvent) => void;
   onCommentTextChange: (text: string) => void;
 }
 
 const Comments: React.FC<CommentsSectionProps> = ({
-  comments,
+  comments = [],
   newCommentText,
   onCommentSubmit,
   onCommentTextChange
