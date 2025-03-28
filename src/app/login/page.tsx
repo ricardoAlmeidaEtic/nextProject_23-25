@@ -18,14 +18,14 @@ function LoginPageContent() {
   }, [session, router]);
 
   if (status === 'loading') {
-    return <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen bg-spotify-black text-white flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-gray-900 text-center mb-6">Welcome Back</h1>
-        <p className="text-gray-600 text-center mb-4">
+    <div className="min-h-screen bg-spotify-black flex items-center justify-center">
+      <div className="bg-wine-900 rounded-lg shadow-lg p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-white text-center mb-6">Welcome Back</h1>
+        <p className="text-gray-300 text-center mb-4">
           Sign in to access your account
         </p>
         {error && (
@@ -35,7 +35,7 @@ function LoginPageContent() {
         )}
         <button
           onClick={() => signIn('google')}
-          className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 transition-all"
         >
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
@@ -44,13 +44,13 @@ function LoginPageContent() {
           />
           Sign in with Google
         </button>
-        <p className="text-gray-500 text-sm text-center mt-6">
+        <p className="text-gray-400 text-sm text-center mt-6">
           By signing in, you agree to our{' '}
-          <a href="/terms" className="text-blue-500 hover:underline">
+          <a href="/terms" className="text-green-400 hover:underline">
             Terms of Service
           </a>{' '}
           and{' '}
-          <a href="/privacy" className="text-blue-500 hover:underline">
+          <a href="/privacy" className="text-green-400 hover:underline">
             Privacy Policy
           </a>.
         </p>
@@ -61,7 +61,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-spotify-black text-white flex items-center justify-center">Loading...</div>}>
       <LoginPageContent />
     </Suspense>
   );
