@@ -49,7 +49,7 @@ import { useEffect, useRef, useState } from "react";
     value: externalValue,
     onChange,
   }) {
-    const sliderRef = useRef(null);
+    const sliderRef = useRef<HTMLDivElement>(null);
     const [region, setRegion] = useState("middle");
     const clientX = useMotionValue(0);
     const overflow = useMotionValue(0);

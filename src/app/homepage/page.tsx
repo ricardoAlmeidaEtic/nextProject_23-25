@@ -98,56 +98,64 @@ const HomepageContent = () => {
   }
 
   return (
-    <div className="min-h-screen text-white">
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <header className="mb-8 flex justify-between items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">
-              {timeGreeting}{' '}
-              <span className="inline-block animate-wiggle">
-                {timeGreeting === 'Good Morning' && '🌤️'}
-                {timeGreeting === 'Good Afternoon' && '☀️'}
-                {timeGreeting === 'Good Evening' && '🌙'}
-                {timeGreeting === 'Good Night' && '🌌'}
-              </span>
-            </h1>
-            <p className="text-gray-400">Recent plays</p>
-          </div>
-          <input
-            type="text"
-            placeholder="Search songs, artists..."
-            className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50 w-64"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleSearch}
-          />
-        </header>
+    //apply metada
+    <div>
 
-        {/* Tracks Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredTracks.map((track) => (
-            <TrackItem
-              key={track.id}
-              track={track}
-              onClick={(t) => setSelectedTrack(t)}
+      <head>
+        <title>Homepage | Music Player</title>
+        <meta name="description" content="Homepage of the music player app" />
+      </head>
+      <div className="min-h-screen text-white">
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <header className="mb-8 flex justify-between items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">
+                {timeGreeting}{' '}
+                <span className="inline-block animate-wiggle">
+                  {timeGreeting === 'Good Morning' && '🌤️'}
+                  {timeGreeting === 'Good Afternoon' && '☀️'}
+                  {timeGreeting === 'Good Evening' && '🌙'}
+                  {timeGreeting === 'Good Night' && '🌌'}
+                </span>
+              </h1>
+              <p className="text-gray-400">Recent plays</p>
+            </div>
+            <input
+              type="text"
+              placeholder="Search songs, artists..."
+              className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50 w-64"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
             />
-          ))}
+          </header>
+
+          {/* Tracks Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredTracks.map((track) => (
+              <TrackItem
+                key={track.id}
+                track={track}
+                onClick={(t) => setSelectedTrack(t)}
+              />
+            ))}
+          </div>
         </div>
+
+        {/* Music Player */}
+        {selectedTrack && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="bg-slate-800/95 rounded-xl p-8 w-full max-w-2xl mx-4 shadow-xl">
+              <MusicPlayer
+                track={selectedTrack}
+                onClose={() => setSelectedTrack(null)}
+                onUpdateTrack={handleUpdateTrack}
+              />
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Music Player */}
-      {selectedTrack && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-slate-800/95 rounded-xl p-8 w-full max-w-2xl mx-4 shadow-xl">
-            <MusicPlayer
-              track={selectedTrack}
-              onClose={() => setSelectedTrack(null)}
-              onUpdateTrack={handleUpdateTrack}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
