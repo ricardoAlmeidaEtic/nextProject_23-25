@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Track, Comment } from '../../app/types';
+import { Track } from '../../app/types';
 import AudioSlider from "./Controls/AudioSlider";
 import ProgressSlider from './Controls/ProgressSlider'
 import { AiOutlineLike } from "react-icons/ai";
 import { AiOutlineDislike } from "react-icons/ai";
 import CommentsSection from "./Comments";
+import { useSession } from "next-auth/react";
 
 
 interface MusicPlayerProps {
@@ -37,6 +38,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const dislikePercentage = totalVotes > 0 ? (track.dislikes / totalVotes) * 100 : 0;
   const commentsContainerRef = useRef<HTMLDivElement>(null);
   const [volume, setVolume] = useState(100); // New volume state
+  const { data: session } = useSession(); // Access session data
   
   useEffect(() => {
     if (audioRef.current) {
@@ -69,21 +71,27 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     try {
       const isRemoving = type === "like" ? hasLiked : hasDisliked;
       const action = isRemoving ? `remove${type.charAt(0).toUpperCase() + type.slice(1)}` : type;
-
+  
       const response = await fetch(`/api/music/${track.id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`Failed to ${action} the track`);
       }
-
+  
       const updatedTrack = await response.json();
-      onUpdateTrack(updatedTrack);
-
-      // Update the state
+  
+      // Preserve the existing streamCount and other fields
+      onUpdateTrack({
+        ...track,
+        ...updatedTrack, // Merge updated fields from the API
+        streamCount: track.streamCount, // Explicitly preserve streamCount
+      });
+  
+      // Update the local state for likes/dislikes
       if (type === "like") {
         setHasLiked(!hasLiked);
         if (hasDisliked) setHasDisliked(false); // Remove dislike if it exists
@@ -96,17 +104,38 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newCommentText.trim()) {
-      const newComment: Comment = {
-        id: Date.now().toString(),
-        text: newCommentText.trim(),
-        author: "Anonymous",
-        timestamp: new Date()
-      };
-      updateTrackStats({ comments: [...track.comments, newComment] });
+  
+    if (!newCommentText.trim()) return;
+  
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trackId: track.id, // Pass the track ID
+          author: session?.user?.name || "Anonymous", // Use session name or fallback to "Anonymous"
+          text: newCommentText.trim(),
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to post comment");
+      }
+  
+      const newComment = await response.json();
+  
+      // Update the comments list
+      onUpdateTrack({
+        ...track,
+        comments: [...track.comments, newComment],
+      });
+  
+      // Clear the input field
       setNewCommentText("");
+    } catch (error) {
+      console.error("Error posting comment:", error);
     }
   };
 
@@ -352,7 +381,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             
           {/* Right Column - Comments */}
           <CommentsSection
-            comments={track.comments || []} // Ensure comments is always an array
+            comments={track.comments || []}
             newCommentText={newCommentText}
             onCommentSubmit={handleCommentSubmit}
             onCommentTextChange={setNewCommentText}

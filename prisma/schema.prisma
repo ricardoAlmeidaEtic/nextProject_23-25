@@ -65,7 +65,6 @@ model User {
   friendsAsUser Friends[]  @relation("FriendsUser")
   friendsAsFriend Friends[] @relation("FriendsFriend")
   playlists     Playlist[]
-  comments      Comment[]
 
   @@map("users")
 }
@@ -102,11 +101,9 @@ model Music {
 
 model Comment {
   id        Int      @id @default(autoincrement())
-  content   String   // The text of the comment
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String   // Foreign key to the User model
-  musicId   Int      // Foreign key to the Music model
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  music     Music    @relation(fields: [musicId], references: [id], onDelete: Cascade)
+  trackId   Int
+  track     Music    @relation(fields: [trackId], references: [id])
+  author    String
+  text      String
+  timestamp DateTime @default(now())
 }
