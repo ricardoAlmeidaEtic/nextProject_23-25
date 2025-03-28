@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import TrackItem from '../../components/TrackItem/TrackItem';
@@ -26,6 +26,7 @@ interface Profile {
 const ProfilePage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState('Overview'); // State to track the active tab
 
   if (status === "loading") {
     return <div className="min-h-screen bg-slate-900 text-white p-8">Loading...</div>;
@@ -86,6 +87,52 @@ const ProfilePage = () => {
     </svg>
   `)}`;
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Overview':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Public Playlists</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {playlistsAsTracks.map((track) => (
+                <TrackItem key={track.id} track={track} onClick={handleTrackClick} />
+              ))}
+            </div>
+          </div>
+        );
+      case 'Playlists':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Your Playlists</h2>
+            <p className="text-gray-400">This is the Playlists tab content.</p>
+          </div>
+        );
+      case 'Albums':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Your Albums</h2>
+            <p className="text-gray-400">This is the Albums tab content.</p>
+          </div>
+        );
+      case 'Artists':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Your Artists</h2>
+            <p className="text-gray-400">This is the Artists tab content.</p>
+          </div>
+        );
+      case 'Podcasts':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Your Podcasts</h2>
+            <p className="text-gray-400">This is the Podcasts tab content.</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="bg-spotify-black h-screen text-white overflow-y-auto">
       {/* Header Section */}
@@ -109,23 +156,22 @@ const ProfilePage = () => {
       {/* Navigation */}
       <nav className="bg-spotify-black/90 sticky top-0 z-10 px-6 py-4 border-b border-spotify-gray">
         <div className="flex gap-6 overflow-x-auto">
-          <button className="text-white font-semibold whitespace-nowrap">Overview</button>
-          <button className="text-spotify-light-gray hover:text-white whitespace-nowrap">Playlists</button>
-          <button className="text-spotify-light-gray hover:text-white whitespace-nowrap">Albums</button>
-          <button className="text-spotify-light-gray hover:text-white whitespace-nowrap">Artists</button>
-          <button className="text-spotify-light-gray hover:text-white whitespace-nowrap">Podcasts</button>
+          {['Overview', 'Playlists', 'Albums', 'Artists', 'Podcasts'].map((tab) => (
+            <button
+              key={tab}
+              className={`${
+                activeTab === tab ? 'text-white font-semibold' : 'text-spotify-light-gray hover:text-white'
+              } whitespace-nowrap`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
       </nav>
 
       {/* Content Section */}
-      <main className="p-6">
-        <h2 className="text-2xl font-bold mb-6">Public Playlists</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {playlistsAsTracks.map((track) => (
-            <TrackItem key={track.id} track={track} onClick={handleTrackClick} />
-          ))}
-        </div>
-      </main>
+      <main className="p-6">{renderTabContent()}</main>
     </div>
   );
 };
