@@ -148,7 +148,10 @@ const HomepageContent = () => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
             <div className="bg-slate-800/95 rounded-xl p-8 w-full max-w-2xl mx-4 shadow-xl">
               <MusicPlayer
-                track={selectedTrack}
+                track={{
+                  ...selectedTrack,
+                  comments: selectedTrack.comments || [], // Ensure comments is always an array
+                }}
                 onClose={() => setSelectedTrack(null)}
                 onUpdateTrack={handleUpdateTrack}
               />

@@ -35,17 +35,17 @@ function LoginPageContent() {
         )}
         <button
           onClick={() => signIn('google')}
-          className="w-full flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-wine-900 text-white px-4 py-3 rounded-lg hover:bg-wine-800 transition-all border border-wine-800"
         >
           Sign in with Google
         </button>
         <p className="text-gray-400 text-sm text-center mt-6">
           By signing in, you agree to our{' '}
-          <a href="/terms" className="text-green-400 hover:underline">
+          <a href="/terms" className="text-wine-300 hover:underline">
             Terms of Service
           </a>{' '}
           and{' '}
-          <a href="/privacy" className="text-green-400 hover:underline">
+          <a href="/privacy" className="text-wine-300 hover:underline">
             Privacy Policy
           </a>.
         </p>

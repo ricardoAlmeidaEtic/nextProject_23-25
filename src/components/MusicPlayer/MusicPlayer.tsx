@@ -114,13 +114,14 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          trackId: track.id, // Pass the track ID
-          author: session?.user?.name || "Anonymous", // Use session name or fallback to "Anonymous"
+          trackId: track.id,
+          author: session?.user?.name || "Anonymous",
           text: newCommentText.trim(),
         }),
       });
   
       if (!response.ok) {
+        console.log("response: ", response);
         throw new Error("Failed to post comment");
       }
   
@@ -129,7 +130,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       // Update the comments list
       onUpdateTrack({
         ...track,
-        comments: [...track.comments, newComment],
+        comments: [...(track.comments || []), newComment], // Ensure comments is an array
       });
   
       // Clear the input field
