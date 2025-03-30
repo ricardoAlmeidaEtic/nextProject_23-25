@@ -3,6 +3,7 @@
 import { signIn, useSession } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
+import SEO from "@/components/Seo/Seo"; // Adjust import path as needed
 
 function LoginPageContent() {
   const { data: session, status } = useSession();
@@ -23,6 +24,11 @@ function LoginPageContent() {
 
   return (
     <div className="min-h-screen bg-spotify-black flex items-center justify-center">
+      <SEO
+        title="About Us - My App"
+        description="Learn more about our platform and mission."
+        keywords="about, music, platform"
+      />
       <div className="bg-wine-900 rounded-lg shadow-lg p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-white text-center mb-6">Welcome Back</h1>
         <p className="text-gray-300 text-center mb-4">

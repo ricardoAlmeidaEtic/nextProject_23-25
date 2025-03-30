@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import MusicPlayer from "@/components/MusicPlayer/MusicPlayer";
 import TrackItem from "@/components/TrackItem/TrackItem";
 import { Track } from '../types'; // Adjust import path as needed
+import SEO from "@/components/Seo/Seo"; // Adjust import path as needed
 
 const HomepageContent = () => {
   const { data: session, status } = useSession();
@@ -101,10 +102,11 @@ const HomepageContent = () => {
     //apply metada
     <div>
 
-      <head>
-        <title>Homepage | Music Player</title>
-        <meta name="description" content="Homepage of the music player app" />
-      </head>
+      <SEO
+        title="About Us - My App"
+        description="Learn more about our platform and mission."
+        keywords="about, music, platform"
+      />
       <div className="min-h-screen text-white">
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 py-8">

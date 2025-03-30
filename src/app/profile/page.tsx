@@ -55,6 +55,28 @@ const ProfilePage = () => {
     ],
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("/api/delete-account", {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("Your account has been deleted.");
+        router.push("/"); // Redirect to home page
+      } else {
+        const data = await response.json();
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+
   const handleTrackClick = (track: Track) => {
     console.log("Playing track:", track);
   };
@@ -148,6 +170,9 @@ const ProfilePage = () => {
             <div className="flex gap-4 text-gray-400">
               <span>{profile.followers.toLocaleString()} followers</span>
               <span>{profile.following.toLocaleString()} following</span>
+              <button onClick={handleDeleteAccount} style={{ color: "red" }}>
+                Delete Account
+              </button>
             </div>
           </div>
         </div>

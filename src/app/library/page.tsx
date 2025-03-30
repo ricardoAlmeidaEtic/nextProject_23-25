@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import TrackItem from "@/components/TrackItem/TrackItem";
 import { database } from '@/lib/db';
+import SEO from "@/components/Seo/Seo"; // Adjust import path as needed
 
 const Page = () => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'playlists' | 'albums' | 'artists'>('all');
@@ -22,6 +23,11 @@ const Page = () => {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <SEO
+        title="About Us - My App"
+        description="Learn more about our platform and mission."
+        keywords="about, music, platform"
+      />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <h1 className="text-3xl font-bold mb-4 md:mb-0">Your Library</h1>

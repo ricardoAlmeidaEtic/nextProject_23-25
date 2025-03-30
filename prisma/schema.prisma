@@ -81,7 +81,7 @@ model Playlist {
   id      Int      @id @default(autoincrement())
   name    String
   userId  String
-  user    User     @relation(fields: [userId], references: [id])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   musics  Music[]
 }
 
